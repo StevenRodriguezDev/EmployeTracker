@@ -47,13 +47,13 @@ const init = async () => {
       viewAllEmployees();
       break;
     case "Add a department.":
-      addADepartment();
+      addDepartment();
       break;
     case "Add a role.":
-      addARole();
+      addRole();
       break;
     case "Add an employee.":
-      addAEmployee();
+      addEmployee();
       break;
     case "Update an employee role.":
       updateEmployeeRole();
@@ -71,18 +71,65 @@ const viewDepartment = async () => {
   console.table(result);
   init();
 };
-const viewRoles = async () => {
+const viewAllRole = async () => {
   const roleResult = await query("SELECT * FROM role");
-  console.table(result);
+  console.table(roleResult);
   init();
 };
-const viewDepartment = async () => {
-  const result = await query("SELECT * FROM department");
-  console.table(result);
+const viewAllEmployees = async () => {
+  const employeeResult = await query(`SELECT e.id, CONCAT(e.first_name, " ", e.last_name) AS name, r.title, d.name AS department, CONCAT(e2.first_name, " ", e2.last_name) AS manager, r.salary
+  FROM employee AS e
+  JOIN role AS r 
+  ON e.role_id = r.id
+  LEFT JOIN employee AS e2
+  ON e.manager_id = e2.id
+  JOIN department AS d
+  ON d.id = r.department_id
+  ORDER BY e.id;`);
+
+  console.table(employeeResult);
   init();
 };
-const viewDepartment = async () => {
-  const result = await query("SELECT * FROM department");
-  console.table(result);
-  init();
+
+
+const addDepartment = async () => {
+  const addDepartmentQuestion = [
+    {
+      type: "input",
+      message: "Type in the name of the new department.",
+      name: "name",
+    },
+  ];
+  const { name } = await inquirer.prompt(addDepartmentQuestion);
+  await query("INSERT INTO department (name) VALUES(?)", [name]);
+  viewDepartment();
 };
+
+
+const addDepartment = async () => {
+  const addDepartmentQuestion = [
+    {
+      type: "input",
+      message: "Type in the name of the new department.",
+      name: "name",
+    },
+  ];
+  const { name } = await inquirer.prompt(addDepartmentQuestion);
+  await query("INSERT INTO department (name) VALUES(?)", [name]);
+  viewDepartment();
+};
+
+
+const addDepartment = async () => {
+  const addDepartmentQuestion = [
+    {
+      type: "input",
+      message: "Type in the name of the new department.",
+      name: "name",
+    },
+  ];
+  const { name } = await inquirer.prompt(addDepartmentQuestion);
+  await query("INSERT INTO department (name) VALUES(?)", [name]);
+  viewDepartment();
+};
+
