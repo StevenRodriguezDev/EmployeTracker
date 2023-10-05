@@ -38,8 +38,8 @@ const init = async () => {
   const { initialUserAction } = await inquirer.prompt(initialQuestion);
   switch (initialUserAction) {
     case "view departments":
-    viewDepartment();
-    break;
+      viewDepartment();
+      break;
     case "View roles.":
       viewAllRole();
       break;
@@ -64,6 +64,25 @@ const init = async () => {
     default:
   }
   return;
-}
+};
 
-
+const viewDepartment = async () => {
+  const result = await query("SELECT * FROM department");
+  console.table(result);
+  init();
+};
+const viewRoles = async () => {
+  const roleResult = await query("SELECT * FROM role");
+  console.table(result);
+  init();
+};
+const viewDepartment = async () => {
+  const result = await query("SELECT * FROM department");
+  console.table(result);
+  init();
+};
+const viewDepartment = async () => {
+  const result = await query("SELECT * FROM department");
+  console.table(result);
+  init();
+};
