@@ -2,17 +2,12 @@ const mysql = require("mysql2");
 const inquirer = require("inquirer");
 const util = require("util");
 
-const db = mysql.createConnection(
-  {
-    host: "localhost",
-    // MySQL username,
-    user: "root",
-    // TODO: Add MySQL password here
-    password: "jordan23",
-    database: "employee_db",
-  },
-  console.log(`Connected`)
-);
+const db = mysql.createConnection({
+  host: "127.0.0.1",
+  user: "root",
+  password: "jordan23",
+  database: "employee_db",
+});
 
 const query = util.promisify(db.query).bind(db);
 
@@ -38,33 +33,34 @@ const init = async () => {
   const { initialUserAction } = await inquirer.prompt(initialQuestion);
   console.log(initialUserAction);
   switch (initialUserAction) {
-    case "view departments":
+    case "View Departments":
       viewDepartment();
       break;
-    case "View roles.":
+    case "View Roles":
       viewAllRole();
       break;
-    case "View employees.":
+    case "View Employees":
       viewAllEmployees();
       break;
-    case "Add a department.":
+    case "Add Department":
       addDepartment();
       break;
-    case "Add a role.":
+    case "Add Role":
       addRole();
       break;
-    case "Add an employee.":
+    case "Add Employee":
       addEmployee();
       break;
-    case "Update an employee role.":
-      updateEmployeeRole();
+    case "Update Employee":
+      updateEmployee();
       break;
-    case "Quit.":
+    case "Quit":
       quit();
       break;
     default:
+      console.log("Invalid choice.");
+      init(); // Restart the menu
   }
-  return;
 };
 
 const viewDepartment = async () => {
@@ -73,19 +69,16 @@ const viewDepartment = async () => {
   init();
 };
 
-
 const viewAllRole = async () => {
   const roleResult = await query("SELECT * FROM role");
   console.table(roleResult);
   init();
 };
 
-
 const viewAllEmployees = async () => {
-  const employeeResult =
-    await query(`SELECT e.id, CONCAT(e.first_name, " ", e.last_name) AS name, r.title, d.name AS department, CONCAT(e2.first_name, " ", e2.last_name) AS manager, r.salary
+  const employeeResult = await query(`SELECT e.id, CONCAT(e.first_name, " ", e.last_name) AS name, r.title, d.name AS department, CONCAT(e2.first_name, " ", e2.last_name) AS manager, r.salary
   FROM employee AS e
-  JOIN role AS r 
+  JOIN role AS r
   ON e.role_id = r.id
   LEFT JOIN employee AS e2
   ON e.manager_id = e2.id
@@ -130,18 +123,16 @@ const addRole = async () => {
       choices: departments,
     },
   ];
-  const { title, salary, department_id } = await inquirer.prompt(
-    addRoleQuestion
-  );
+  const { title, salary, department_id } = await inquirer.prompt(addRoleQuestion);
   await query("INSERT INTO role (title, salary, department_id) VALUES(?,?,?)", [
     title,
-    parseInt(salary),
+    parseFloat(salary), // Use parseFloat for salary
     department_id,
   ]);
   viewAllRole();
 };
 
-addEmployee = async () => {
+const addEmployee = async () => {
   const roles = await query("SELECT title AS name, id AS value FROM role");
   const managers = await query(
     "SELECT CONCAT(first_name, ' ', last_name) as name, id AS value FROM employee WHERE manager_id IS null"
@@ -150,7 +141,7 @@ addEmployee = async () => {
     name: "No Manager",
     value: null,
   });
-  console.log(roles);
+
   const addEmployeeQuestions = [
     {
       type: "input",
@@ -182,10 +173,10 @@ addEmployee = async () => {
     "INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES(?, ?, ?, ?)",
     [first_name, last_name, role_id, manager_id]
   );
-  viewEmployees();
+  viewAllEmployees();
 };
 
-updateEmployee = async () => {
+const updateEmployee = async () => {
   const employeeUpdateOptions = await query(
     "SELECT CONCAT(first_name, ' ', last_name) as name, id AS value FROM employee"
   );
@@ -217,15 +208,13 @@ updateEmployee = async () => {
       choices: managers,
     },
   ];
-  const { id, role_id, manager_id } = await inquirer.prompt(
-    updateEmployeeQuestions
-  );
+  const { id, role_id, manager_id } = await inquirer.prompt(updateEmployeeQuestions);
   await query("UPDATE employee SET role_id =?, manager_id =? WHERE id=?", [
     role_id,
     manager_id,
     id,
   ]);
-  viewEmployees();
+  viewAllEmployees();
 };
 
 const quit = () => {
